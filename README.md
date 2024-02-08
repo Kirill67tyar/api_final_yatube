@@ -1,27 +1,33 @@
-# api_final
-api final
+### yatube_api
+yatube_api - проект, в котором можно регистрироваться, авторизовываться, писать посты, и комментарии к ним. Можно также добавлять эти посты в тематические группы, а авторизованные пользователи могут подпсываться друг на друга.
+Аутентификация реализована через JWT.
 
-Как запустить проект:
-Клонировать репозиторий и перейти в него в командной строке:
+### Как запустить проект:
+##### Клонировать репозиторий и перейти в него в командной строке:
 
-git clone https://github.com/yandex-praktikum/kittygram_backend.git
-cd kittygram_backend
-Cоздать и активировать виртуальное окружение:
+    git clone https://github.com/Kirill67tyar/api_final_yatube.git
+    cd yatube_api
 
-python3 -m venv env
-Если у вас Linux/macOS
+##### Cоздать и активировать виртуальное окружение:
 
-source env/bin/activate
-Если у вас windows
+    python3 -m venv env
+- Если у вас Linux/macOS
 
-source env/scripts/activate
-python3 -m pip install --upgrade pip
-Установить зависимости из файла requirements.txt:
+      source env/bin/activate
+	  
+- Если у вас windows
 
-pip install -r requirements.txt
-Выполнить миграции:
+      source env/scripts/activate
 
-python3 manage.py migrate
-Запустить проект:
+##### Обновляем pip
+    python3 -m pip install --upgrade pip
+	
+##### Установить зависимости из файла requirements.txt:
 
-python3 manage.py runserver
+    pip install -r requirements.txt
+##### Выполнить миграции:
+
+    python3 manage.py migrate
+##### Запустить проект:
+
+     python3 manage.py runserver
