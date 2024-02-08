@@ -1,41 +1,51 @@
-# from rest_framework.serializers import (
-#     ModelSerializer,
-#     SlugRelatedField,
-# )
+from django.contrib.auth import get_user_model
+from rest_framework.generics import get_object_or_404
+from rest_framework.serializers import (CurrentUserDefault, ModelSerializer,
+                                        SlugRelatedField, ValidationError)
+from rest_framework.validators import UniqueTogetherValidator
 
-# from posts.models import Comment, Group, Post
-# from rest_framework import serializers
-# from rest_framework.relations import SlugRelatedField
+from posts.models import Comment, Follow, Group, Post
 
-
-# from posts.models import Comment, Post
+User = get_user_model()
 
 
-# class PostSerializer(serializers.ModelSerializer):
-#     author = SlugRelatedField(slug_field='username', read_only=True)
+class FollowModelSerializer(ModelSerializer):
+    user = SlugRelatedField(
+        default=CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
+    )
+    following = SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username'
+    )
 
-#     class Meta:
-#         fields = '__all__'
-#         model = Post
+    class Meta:
+        model = Follow
+        fields = (
+            'user', 'following',
+        )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following',)
+            ),
+        ]
 
+    def validate(self, data):
+        user = self.context['request'].user
+        following = get_object_or_404(User, username=data['following'])
+        if user == following:
+            raise ValidationError(
+                'Ошибка: нельзя подписываться на самого себя.'
+            )
+        return data
 
-# class CommentSerializer(serializers.ModelSerializer):
-#     author = serializers.SlugRelatedField(
-#         read_only=True, slug_field='username'
-#     )
-
-#     class Meta:
-#         fields = '__all__'
-#         model = Comment
-
-
-# !-----------------------------
-from rest_framework.serializers import (
-    ModelSerializer,
-    SlugRelatedField,
-)
-
-from posts.models import Comment, Group, Post
+    def save(self, **kwargs):
+        return super().save(
+            user=self.context['request'].user,
+            **kwargs
+        )
 
 
 class PostModelSerializer(ModelSerializer):
@@ -53,6 +63,12 @@ class PostModelSerializer(ModelSerializer):
             'image',
             'group',
             'pub_date',
+        )
+
+    def save(self, **kwargs):
+        return super().save(
+            author=self.context['request'].user,
+            **kwargs
         )
 
 

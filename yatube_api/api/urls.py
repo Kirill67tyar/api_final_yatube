@@ -1,10 +1,8 @@
 from django.urls import include, path
-from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
 
-from api.views import (CommentModelViewSet, GroupReadOnlyModelViewSet,
-                       PostModelViewSet)
-
+from api.views import (CommentModelViewSet, FollowModelViewSet,
+                       GroupReadOnlyModelViewSet, PostModelViewSet)
 
 app_name = 'api'
 
@@ -20,6 +18,11 @@ router_v1.register(
     basename='groups',
 )
 router_v1.register(
+    'follow',
+    FollowModelViewSet,
+    basename='follow',
+)
+router_v1.register(
     r'posts/(?P<post_id>\d+)/comments',
     CommentModelViewSet,
     basename='comments'
@@ -27,9 +30,7 @@ router_v1.register(
 
 urlpatterns_v1 = [
     path('', include(router_v1.urls)),
-    # базовые, для управления пользователями в Django:
     path('', include('djoser.urls')),
-    # JWT-эндпоинты, для управления JWT-токенами:
     path('', include('djoser.urls.jwt')),
 ]
 
@@ -39,4 +40,3 @@ urlpatterns = [
         include(urlpatterns_v1),
     ),
 ]
-

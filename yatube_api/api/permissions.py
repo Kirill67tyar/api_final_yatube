@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAuthorOrAuthenticatedReadOnly(BasePermission):
@@ -15,4 +15,3 @@ class IsAuthorOrAuthenticatedReadOnly(BasePermission):
         Т.е. если не админ и не автор поста, то изменять и удалять нельзя.
         """
         return request.user == obj.author or request.method in SAFE_METHODS
-    

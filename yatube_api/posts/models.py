@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+
 User = get_user_model()
 
 
@@ -8,22 +9,26 @@ class Follow(models.Model):
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
-        related_name='follower'
+        related_name='select_followers',
+        verbose_name='Пользователь подписан'
     )
-    author = models.ForeignKey(
+    following = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
-        related_name='following'
+        related_name='select_followings',
+        verbose_name='На пользователя подписан'
     )
+
+    def __str__(self):
+        return f'{self.pk}) Связь подписчиков'
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'author',],
-                name='unique_key_user_author'
-            )
+                fields=['user', 'following',],
+                name='unique_key_user_following'
+            ),
         ]
-        # unique_together = ('user', 'author')
 
 
 class Group(models.Model):
