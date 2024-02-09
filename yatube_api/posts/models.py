@@ -32,9 +32,7 @@ class Follow(models.Model):
         ]
 
     def __str__(self):
-        user = self._meta.fields[1].name
-        following = self._meta.fields[-1].name
-        return f'{user} - {following} ({self.user_id}, {self.following_id})'
+        return f'user (id {self.user_id}) - following (id {self.following_id})'
 
 
 class Group(models.Model):
