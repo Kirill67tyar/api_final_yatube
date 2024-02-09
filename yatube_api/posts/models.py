@@ -9,18 +9,15 @@ class Follow(models.Model):
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
-        related_name='select_followers',
+        related_name='followers',
         verbose_name='Пользователь подписан'
     )
     following = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,
-        related_name='select_followings',
+        related_name='followings',
         verbose_name='На пользователя подписан'
     )
-
-    def __str__(self):
-        return f'{self.pk}) Связь подписчиков'
 
     class Meta:
         constraints = [
@@ -28,7 +25,16 @@ class Follow(models.Model):
                 fields=['user', 'following', ],
                 name='unique_key_user_following'
             ),
+            models.CheckConstraint(
+                name='%(app_label)s_%(class)s_prevent_self_follow',
+                check=~models.Q(user=models.F('following')),
+            ),
         ]
+
+    def __str__(self):
+        user = self._meta.fields[1].name
+        following = self._meta.fields[-1].name
+        return f'{user} - {following} ({self.user_id}, {self.following_id})'
 
 
 class Group(models.Model):

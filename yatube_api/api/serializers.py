@@ -6,6 +6,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from posts.models import Comment, Follow, Group, Post
 
+
 User = get_user_model()
 
 
@@ -28,24 +29,23 @@ class FollowModelSerializer(ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
-                fields=('user', 'following',)
+                fields=('user', 'following',),
+                message=(
+                    'Ошибка: вы уже подписаны на пользователя'
+                    'доступного по ключу "following".'
+                    'Нельзя подписываться дважды.'
+                )
             ),
         ]
 
-    def validate(self, data):
+    def validate_following(self, value):
         user = self.context['request'].user
-        following = get_object_or_404(User, username=data['following'])
+        following = get_object_or_404(User, username=value)
         if user == following:
             raise ValidationError(
                 'Ошибка: нельзя подписываться на самого себя.'
             )
-        return data
-
-    def save(self, **kwargs):
-        return super().save(
-            user=self.context['request'].user,
-            **kwargs
-        )
+        return value
 
 
 class PostModelSerializer(ModelSerializer):
@@ -63,12 +63,6 @@ class PostModelSerializer(ModelSerializer):
             'image',
             'group',
             'pub_date',
-        )
-
-    def save(self, **kwargs):
-        return super().save(
-            author=self.context['request'].user,
-            **kwargs
         )
 
 

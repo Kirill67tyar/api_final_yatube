@@ -30,7 +30,6 @@ router_v1.register(
 
 urlpatterns_v1 = [
     path('', include(router_v1.urls)),
-    path('', include('djoser.urls')),
     path('', include('djoser.urls.jwt')),
 ]
 

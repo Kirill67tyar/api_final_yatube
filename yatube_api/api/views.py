@@ -1,27 +1,31 @@
-from rest_framework import mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.viewsets import (GenericViewSet, ModelViewSet,
-                                     ReadOnlyModelViewSet)
+from rest_framework.permissions import AllowAny
+from rest_framework.viewsets import (
+    ModelViewSet,
+    ReadOnlyModelViewSet,
+)
 
+from api.viewsets import ListCreateModelViewSet
 from api.permissions import IsAuthorOrAuthenticatedReadOnly
 from api.serializers import (CommentModelSerializer, FollowModelSerializer,
                              GroupModelSerializer, PostModelSerializer)
 from posts.models import Group, Post
 
 
-class FollowModelViewSet(mixins.CreateModelMixin,
-                         mixins.ListModelMixin,
-                         GenericViewSet):
+class FollowModelViewSet(ListCreateModelViewSet):
     serializer_class = FollowModelSerializer
-    permission_classes = (IsAuthenticated,)
     filter_backends = (SearchFilter,)
     search_fields = ('following__username',)
 
     def get_queryset(self):
-        return self.request.user.select_followers.select_related('following')
+        return self.request.user.followers.select_related('following')
+
+    def perform_create(self, serializer):
+        serializer.save(
+            user=self.request.user
+        )
 
 
 class PostModelViewSet(ModelViewSet):
@@ -29,6 +33,11 @@ class PostModelViewSet(ModelViewSet):
     serializer_class = PostModelSerializer
     permission_classes = (IsAuthorOrAuthenticatedReadOnly,)
     pagination_class = LimitOffsetPagination
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user
+        )
 
 
 class GroupReadOnlyModelViewSet(ReadOnlyModelViewSet):
